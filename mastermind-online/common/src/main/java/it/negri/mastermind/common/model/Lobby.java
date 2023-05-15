@@ -22,6 +22,16 @@ public class Lobby {
         return (playerA != null && playerB != null);
     }
 
+    public boolean isEmpty() {
+        return (playerA == null && playerB == null);
+    }
+
+    public boolean isAvailableRole(Role role) {
+        return isEmpty() || (!isFull() &&
+                ((playerB == null && playerA.getRole() != role) ||
+                        (playerA == null && playerB.getRole() != role)));
+    }
+
     public int getId() {
         return id;
     }

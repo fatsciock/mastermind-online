@@ -2,19 +2,16 @@ package it.negri.mastermind.common;
 
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
-import it.negri.mastermind.common.model.Lobby;
-import it.negri.mastermind.common.model.Match;
-import it.negri.mastermind.common.model.Player;
-import it.negri.mastermind.common.model.ResultLabel;
+import it.negri.mastermind.common.model.*;
 
 import java.util.Map;
 import java.util.Set;
 
 public interface Mastermind {
 
-    Player createPlayer(final String nick) throws ConflictException;
+    Player createPlayer(final String nick) throws ConflictException, IllegalArgumentException;
 
-    void deletePlayer(final String nick) throws ConflictException;
+    void deletePlayer(final String nick) throws MissingException;
 
     Player getPlayer(final String nick) throws MissingException;
 
@@ -26,15 +23,16 @@ public interface Mastermind {
 
     Set<? extends Lobby> getAllLobbies();
 
-    //Deve in automatico settare correttamente il ruolo del secondo player
-    Lobby addPlayerToLobby(final String nick, final int lobbyId) throws MissingException;
+    Lobby addPlayerToLobby(final String nick, final int lobbyId, final Role role) throws MissingException, IllegalArgumentException;
 
     void deletePlayerFromLobby(final String nick, final int lobbyId) throws MissingException;
 
-    Match startGame(final int lobbyId) throws MissingException, ConflictException, IllegalStateException;
+    Game startGame(final int lobbyId) throws MissingException, ConflictException, IllegalArgumentException;
 
-    void setCode(String guess) throws MissingException, IllegalArgumentException;
+    Game getGame(final int gameId) throws MissingException;
 
-    Map<ResultLabel, Integer> guessCode(String guess) throws MissingException;
+    void setCode(final int gameId, final String codeToGuess, final String nick) throws MissingException, IllegalArgumentException;
+
+    Game guessCode(final int gameId, final String guess, final String nick) throws MissingException;
 
 }
