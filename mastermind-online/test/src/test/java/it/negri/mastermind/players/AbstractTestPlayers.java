@@ -5,15 +5,13 @@ import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.model.Player;
 
-import javax.imageio.stream.MemoryCacheImageInputStream;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class AbstractTestPlayers {
 
     protected Mastermind mastermind;
-    private Player player1;
+    protected Player player1;
 
     protected abstract void setUp();
 

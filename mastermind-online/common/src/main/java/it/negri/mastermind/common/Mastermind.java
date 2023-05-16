@@ -4,7 +4,6 @@ import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.model.*;
 
-import java.util.Map;
 import java.util.Set;
 
 public interface Mastermind {
