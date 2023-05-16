@@ -51,4 +51,26 @@ public class Lobby {
     public void setPlayerB(Player playerB) {
         this.playerB = playerB;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lobby lobby = (Lobby) o;
+        return id == lobby.id && Objects.equals(playerA, lobby.playerA) && Objects.equals(playerB, lobby.playerB);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, playerA, playerB);
+    }
+
+    @Override
+    public String toString() {
+        return "Lobby{" +
+                "id=" + id +
+                ", playerA=" + playerA +
+                ", playerB=" + playerB +
+                '}';
+    }
 }
