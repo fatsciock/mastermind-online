@@ -127,12 +127,12 @@ public class Game {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Game game = (Game) o;
-        return id == game.id && remainingAttempts == game.remainingAttempts && Objects.equals(playerA, game.playerA) && Objects.equals(playerB, game.playerB) && Objects.equals(attempts, game.attempts) && Objects.equals(code, game.code);
+        return id == game.id && remainingAttempts == game.remainingAttempts && Objects.equals(playerA, game.playerA) && Objects.equals(playerB, game.playerB) && Objects.equals(winner, game.winner) && Objects.equals(attempts, game.attempts) && Objects.equals(hintPerAttempt, game.hintPerAttempt) && Objects.equals(code, game.code);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, playerA, playerB, remainingAttempts, attempts, code);
+        return Objects.hash(id, playerA, playerB, winner, remainingAttempts, attempts, hintPerAttempt, code);
     }
 
     @Override
@@ -141,8 +141,10 @@ public class Game {
                 "id=" + id +
                 ", playerA=" + playerA +
                 ", playerB=" + playerB +
+                ", winner=" + winner +
                 ", remainingAttempts=" + remainingAttempts +
                 ", attempts=" + attempts +
+                ", hintPerAttempt=" + hintPerAttempt +
                 ", code='" + code + '\'' +
                 '}';
     }
