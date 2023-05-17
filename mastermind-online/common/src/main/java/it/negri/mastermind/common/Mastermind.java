@@ -28,9 +28,11 @@ public interface Mastermind {
 
     Game startGame(final int lobbyId) throws MissingException, ConflictException, IllegalArgumentException;
 
+    void deleteGame(final int gameId) throws MissingException;
+
     Game getGame(final int gameId) throws MissingException;
 
-    void setCode(final int gameId, final String codeToGuess, final String nick) throws MissingException, IllegalArgumentException;
+    String setCode(final int gameId, final String codeToGuess, final String nick) throws MissingException, IllegalArgumentException;
 
     Game guessCode(final int gameId, final String guess, final String nick) throws MissingException;
 

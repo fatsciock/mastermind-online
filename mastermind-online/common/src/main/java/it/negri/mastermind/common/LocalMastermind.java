@@ -131,6 +131,12 @@ public class LocalMastermind implements Mastermind{
     }
 
     @Override
+    public void deleteGame(final int gameId) throws MissingException {
+        var gameToDelete = getGame(gameId);
+        gamesById.remove(gameToDelete.getId());
+    }
+
+    @Override
     public Game getGame(final int gameId) throws MissingException {
         if(!gamesById.containsKey(gameId)) {
             throw new MissingException("There is no game with id " + gameId);
@@ -139,7 +145,7 @@ public class LocalMastermind implements Mastermind{
     }
 
     @Override
-    public void setCode(final int gameId, final String codeToGuess, final String nick) throws MissingException, IllegalArgumentException {
+    public String setCode(final int gameId, final String codeToGuess, final String nick) throws MissingException, IllegalArgumentException {
         var game = getGame(gameId);
         var player = getPlayer(nick);
 
@@ -148,6 +154,7 @@ public class LocalMastermind implements Mastermind{
         checkCode(codeToGuess);
 
         game.setCode(codeToGuess);
+        return game.getCode();
     }
 
     @Override
