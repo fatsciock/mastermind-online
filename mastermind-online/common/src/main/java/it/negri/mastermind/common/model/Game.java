@@ -11,7 +11,7 @@ public class Game {
     private Player winner = null;
     private int remainingAttempts;
     private final List<String> attempts;
-    private final List<Map<ResultLabel, Integer>> hintPerAttempt;
+    private final List<Map<HintLabel, Integer>> hintPerAttempt;
     private String code;
 
     public Game(Lobby lobby) {
@@ -21,6 +21,17 @@ public class Game {
         this.remainingAttempts = Utils.getDefaultAttempts();
         this.attempts = new ArrayList<>();
         this.hintPerAttempt = new ArrayList<>();
+    }
+
+    public Game(int id, Player playerA, Player playerB, Player winner, int remainingAttempts, List<String> attempts, List<Map<HintLabel, Integer>> hintPerAttempt, String code) {
+        this.id = id;
+        this.playerA = playerA;
+        this.playerB = playerB;
+        this.winner = winner;
+        this.remainingAttempts = remainingAttempts;
+        this.attempts = attempts;
+        this.hintPerAttempt = hintPerAttempt;
+        this.code = code;
     }
 
     public int getId() {
@@ -63,7 +74,7 @@ public class Game {
         return attempts;
     }
 
-    public List<Map<ResultLabel, Integer>> getHintPerAttempt() {
+    public List<Map<HintLabel, Integer>> getHintPerAttempt() {
         return hintPerAttempt;
     }
 
@@ -83,13 +94,13 @@ public class Game {
         return this;
     }
 
-    private Map<ResultLabel, Integer> getHintFromCode(final String guess) {
-        var result = new HashMap<ResultLabel, Integer>();
+    private Map<HintLabel, Integer> getHintFromCode(final String guess) {
+        var result = new HashMap<HintLabel, Integer>();
 
         if (guess.equals(code)) {
             winner = playerA.getRole() == Role.DECODER ? playerA : playerB;
-            result.put(ResultLabel.RIGHT_NUMBER_IN_WRONG_PLACE, 0);
-            result.put(ResultLabel.RIGHT_NUMBER_IN_RIGHT_PLACE, Utils.getCodeLength());
+            result.put(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE, 0);
+            result.put(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE, Utils.getCodeLength());
             return result;
         } else if (remainingAttempts == 0) {
             winner = playerA.getRole() == Role.ENCODER ? playerA : playerB;
@@ -108,7 +119,7 @@ public class Game {
                 unmatchedGuess.add(guess.charAt(i));
             }
         }
-        result.put(ResultLabel.RIGHT_NUMBER_IN_RIGHT_PLACE, cont);
+        result.put(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE, cont);
         cont = 0;
 
         // Calcolo RIGHT_NUMBER_IN_WRONG_PLACE
@@ -118,7 +129,7 @@ public class Game {
                 unmatchedCode.remove((Character) guessChar);
             }
         }
-        result.put(ResultLabel.RIGHT_NUMBER_IN_WRONG_PLACE, cont);
+        result.put(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE, cont);
         return result;
     }
 

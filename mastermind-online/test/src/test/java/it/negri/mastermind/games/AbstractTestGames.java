@@ -6,7 +6,7 @@ import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.model.Lobby;
 import it.negri.mastermind.common.model.Game;
 import it.negri.mastermind.common.model.Player;
-import it.negri.mastermind.common.model.ResultLabel;
+import it.negri.mastermind.common.model.HintLabel;
 import it.negri.mastermind.common.utils.Utils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,16 +83,16 @@ public abstract class AbstractTestGames {
         assertEquals(1, game.getHintPerAttempt().size());
         assertEquals(Utils.getDefaultAttempts() - 1, game.getRemainingAttempts());
         var lastHint = game.getHintPerAttempt().get(0);
-        assertEquals(1, lastHint.get(ResultLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
-        assertEquals(1, lastHint.get(ResultLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
+        assertEquals(1, lastHint.get(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
+        assertEquals(1, lastHint.get(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
 
         //Secondo tentativo: codice esatto
         game = mastermind.guessCode(game.getId(), guess, decoder.getNickname());
         assertEquals(2, game.getHintPerAttempt().size());
         assertEquals(Utils.getDefaultAttempts() - 2, game.getRemainingAttempts());
         lastHint = game.getHintPerAttempt().get(1);
-        assertEquals(0, lastHint.get(ResultLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
-        assertEquals(Utils.getCodeLength(), lastHint.get(ResultLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
+        assertEquals(0, lastHint.get(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
+        assertEquals(Utils.getCodeLength(), lastHint.get(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
         assertEquals(decoder, game.getWinner());
     }
 

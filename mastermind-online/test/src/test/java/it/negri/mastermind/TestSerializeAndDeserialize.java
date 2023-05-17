@@ -2,9 +2,11 @@ package it.negri.mastermind;
 
 import com.google.gson.Gson;
 import it.negri.mastermind.common.model.Game;
+import it.negri.mastermind.common.model.HintLabel;
 import it.negri.mastermind.common.model.Lobby;
 import it.negri.mastermind.common.model.Player;
 import it.negri.mastermind.common.utils.GsonUtils;
+import it.negri.mastermind.common.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,5 +58,15 @@ public class TestSerializeAndDeserialize {
         String serialized = gson.toJson(GAME);
         Game deserialized = gson.fromJson(serialized, Game.class);
         assertEquals(GAME, deserialized);
+
+        GAME.setCode("1284");
+        GAME.tryToGuessCode("8524");
+        serialized = gson.toJson(GAME);
+        deserialized = gson.fromJson(serialized, Game.class);
+        assertEquals(GAME, deserialized);
+        assertEquals(1, deserialized.getHintPerAttempt().size());
+        assertEquals(Utils.getDefaultAttempts() - 1, deserialized.getRemainingAttempts());
+        assertEquals(1, deserialized.getHintPerAttempt().get(0).get(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
+        assertEquals(2, deserialized.getHintPerAttempt().get(0).get(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
     }
 }
