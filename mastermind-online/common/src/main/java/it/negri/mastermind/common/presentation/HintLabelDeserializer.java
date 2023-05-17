@@ -8,7 +8,7 @@ import it.negri.mastermind.common.model.HintLabel;
 
 import java.lang.reflect.Type;
 
-public class ResultLabelDeserializer implements JsonDeserializer<HintLabel> {
+public class HintLabelDeserializer implements JsonDeserializer<HintLabel> {
     @Override
     public HintLabel deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         try {
