@@ -3,6 +3,7 @@ package it.negri.mastermind.games;
 import it.negri.mastermind.common.Mastermind;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
+import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.Lobby;
 import it.negri.mastermind.common.model.Game;
 import it.negri.mastermind.common.model.Player;
@@ -19,7 +20,7 @@ public abstract class AbstractTestGames {
     protected Player decoder;
     protected abstract void setUp();
 
-    protected void testStartGame() throws MissingException, ConflictException, IllegalArgumentException {
+    protected void testStartGame() throws MissingException, ConflictException, IllegalArgumentException, ServerUnavailableException {
         Game expected = new Game(lobby);
         game = mastermind.startGame(lobby.getId());
 
@@ -35,17 +36,17 @@ public abstract class AbstractTestGames {
         mastermind.deleteLobby(lobbyTemp.getId());
     }
 
-    protected void testDeleteGame() throws MissingException {
+    protected void testDeleteGame() throws MissingException, ServerUnavailableException {
         mastermind.deleteGame(game.getId());
         assertThrows(MissingException.class, () -> mastermind.getGame(game.getId()));
     }
 
-    protected void testGetGame() throws MissingException {
+    protected void testGetGame() throws MissingException, ServerUnavailableException {
         assertEquals(game, mastermind.getGame(1));
         assertThrows(MissingException.class, () -> mastermind.getGame(2));
     }
 
-    protected void testSetCode() throws MissingException, IllegalArgumentException, ConflictException {
+    protected void testSetCode() throws MissingException, IllegalArgumentException, ConflictException, ServerUnavailableException {
         String codeToGuess = "0321";
         //Game non esistente
         assertThrows(MissingException.class, () -> mastermind.setCode(2, codeToGuess, encoder.getNickname()));
@@ -63,7 +64,7 @@ public abstract class AbstractTestGames {
         assertEquals(codeToGuess, mastermind.setCode(game.getId(), codeToGuess, encoder.getNickname()));
     }
 
-    protected void testGuessCodeDecoderWins() throws MissingException, IllegalArgumentException, ConflictException {
+    protected void testGuessCodeDecoderWins() throws MissingException, IllegalArgumentException, ConflictException, ServerUnavailableException {
         String guess = "0321";
         //Game non esistente
         assertThrows(MissingException.class, () -> mastermind.guessCode(2, guess, decoder.getNickname()));
@@ -96,7 +97,7 @@ public abstract class AbstractTestGames {
         assertEquals(decoder, game.getWinner());
     }
 
-    protected void testGuessCodeEncoderWins() throws MissingException, IllegalArgumentException, ConflictException {
+    protected void testGuessCodeEncoderWins() throws MissingException, IllegalArgumentException, ConflictException, ServerUnavailableException {
         game = mastermind.startGame(lobby.getId());
         String codeToGuess = "0321";
         mastermind.setCode(game.getId(), codeToGuess, encoder.getNickname());

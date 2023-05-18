@@ -3,6 +3,7 @@ package it.negri.mastermind.players;
 import it.negri.mastermind.common.Mastermind;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
+import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.Player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +16,7 @@ public abstract class AbstractTestPlayers {
 
     protected abstract void setUp();
 
-    protected void testCreatePlayer() throws ConflictException, IllegalArgumentException{
+    protected void testCreatePlayer() throws ConflictException, IllegalArgumentException, ServerUnavailableException {
         String nickname = "Andrea";
         Player expected = new Player(nickname);
         player1 = mastermind.createPlayer(nickname);
@@ -25,12 +26,12 @@ public abstract class AbstractTestPlayers {
         assertThrows(IllegalArgumentException.class, () -> mastermind.createPlayer(""));
     }
 
-    protected void testDeletePlayer() throws MissingException, ConflictException {
+    protected void testDeletePlayer() throws MissingException, ConflictException, ServerUnavailableException {
         mastermind.deletePlayer(player1.getNickname());
         assertThrows(MissingException.class, () -> mastermind.getPlayer(player1.getNickname()));
     }
 
-    protected void testGetPlayer() throws MissingException, ConflictException {
+    protected void testGetPlayer() throws MissingException, ConflictException, ServerUnavailableException {
         assertEquals(player1, mastermind.getPlayer(player1.getNickname()));
         assertThrows(MissingException.class, () -> mastermind.getPlayer("Carlo"));
     }

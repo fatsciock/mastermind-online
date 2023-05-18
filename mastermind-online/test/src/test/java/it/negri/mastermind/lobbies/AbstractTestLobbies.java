@@ -2,6 +2,7 @@ package it.negri.mastermind.lobbies;
 
 import it.negri.mastermind.common.Mastermind;
 import it.negri.mastermind.common.exceptions.MissingException;
+import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.Lobby;
 import it.negri.mastermind.common.model.Player;
 import it.negri.mastermind.common.model.Role;
@@ -20,7 +21,7 @@ public abstract class AbstractTestLobbies {
 
     protected abstract void setUp();
 
-    protected void testCreateLobby() {
+    protected void testCreateLobby() throws ServerUnavailableException {
         Lobby expected = new Lobby(1);
         lobby = mastermind.createLobby();
 
@@ -31,24 +32,24 @@ public abstract class AbstractTestLobbies {
         assertEquals(expected, mastermind.createLobby());
     }
 
-    protected void testDeleteLobby() throws MissingException {
+    protected void testDeleteLobby() throws MissingException, ServerUnavailableException {
         mastermind.deleteLobby(2);
         assertThrows(MissingException.class, () -> mastermind.getLobby(2));
     }
 
-    protected void testGetLobby() throws MissingException {
+    protected void testGetLobby() throws MissingException, ServerUnavailableException {
         assertEquals(lobby, mastermind.getLobby(1));
         assertThrows(MissingException.class, () -> mastermind.getLobby(2));
     }
 
-    protected void getAllLobbies() {
+    protected void getAllLobbies() throws ServerUnavailableException {
         assertEquals(1, mastermind.getAllLobbies().size());
         mastermind.createLobby();
         assertEquals(2, mastermind.getAllLobbies().size());
         assertTrue(mastermind.getAllLobbies().contains(lobby));
     }
 
-    protected void testAddPlayerToLobby() throws MissingException {
+    protected void testAddPlayerToLobby() throws MissingException, ServerUnavailableException {
         encoder.setAsEncoder();
         assertEquals(encoder, mastermind.addPlayerToLobby(encoder.getNickname(), 1, Role.ENCODER).getPlayerA());
         //Il player non può essere inattivo
@@ -61,7 +62,7 @@ public abstract class AbstractTestLobbies {
         assertThrows(IllegalArgumentException.class, () -> mastermind.addPlayerToLobby(encoder.getNickname(), 1, Role.ENCODER));
     }
 
-    protected void testDeletePlayerFromLobby() throws MissingException {
+    protected void testDeletePlayerFromLobby() throws MissingException, ServerUnavailableException {
         mastermind.deletePlayerFromLobby(decoder.getNickname(), 1);
         assertNull(mastermind.getLobby(1).getPlayerB());
         assertThrows(MissingException.class, () -> mastermind.deletePlayerFromLobby(decoder.getNickname(), 1));
