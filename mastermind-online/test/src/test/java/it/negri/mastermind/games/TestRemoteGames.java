@@ -1,20 +1,25 @@
 package it.negri.mastermind.games;
 
-import it.negri.mastermind.common.LocalMastermind;
+import it.negri.mastermind.client.MastermindClient;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.Role;
+import it.negri.mastermind.server.MastermindService;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestLocalGames extends AbstractTestGames {
+public class TestRemoteGames extends AbstractTestGames {
+    private static final int port = 10000;
+    private MastermindService service;
 
     @BeforeAll
     @Override
     protected void setUp() {
-        mastermind = new LocalMastermind();
+        service = new MastermindService(port);
+        service.start();
+        mastermind = new MastermindClient("localhost", port);
 
         try {
             mastermind.createLobby();
@@ -69,5 +74,6 @@ public class TestLocalGames extends AbstractTestGames {
     @Override
     protected void testGuessCodeEncoderWins() throws MissingException, IllegalArgumentException, ConflictException, ServerUnavailableException {
         super.testGuessCodeEncoderWins();
+        service.stop();
     }
 }

@@ -1,19 +1,24 @@
 package it.negri.mastermind.lobbies;
 
-import it.negri.mastermind.common.LocalMastermind;
+import it.negri.mastermind.client.MastermindClient;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.exceptions.ServerUnavailableException;
-import org.junit.jupiter.api.MethodOrderer;
+import it.negri.mastermind.server.MastermindService;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestLocalLobbies extends AbstractTestLobbies {
+public class TestRemoteLobbies extends AbstractTestLobbies {
+    private static final int port = 10000;
+    private MastermindService service;
+
     @BeforeAll
     @Override
     protected void setUp() {
-        mastermind = new LocalMastermind();
+        service = new MastermindService(port);
+        service.start();
+        mastermind = new MastermindClient("localhost", port);
 
         try {
             encoder = mastermind.createPlayer("Andrea");
@@ -63,5 +68,6 @@ public class TestLocalLobbies extends AbstractTestLobbies {
     @Override
     protected void testDeletePlayerFromLobby() throws MissingException, ServerUnavailableException {
         super.testDeletePlayerFromLobby();
+        service.stop();
     }
 }

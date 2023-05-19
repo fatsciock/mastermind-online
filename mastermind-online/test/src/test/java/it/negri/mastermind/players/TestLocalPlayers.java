@@ -13,7 +13,7 @@ public class TestLocalPlayers extends AbstractTestPlayers {
     @BeforeAll
     @Override
     protected void setUp() {
-        this.mastermind = new LocalMastermind();
+        mastermind = new LocalMastermind();
     }
 
     @Order(1)
