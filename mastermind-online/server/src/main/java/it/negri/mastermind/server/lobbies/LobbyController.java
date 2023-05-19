@@ -147,7 +147,7 @@ public interface LobbyController extends Controller {
 
     @OpenApi(
             operationId = "LobbyApi::addPlayerToLobby",
-            path = MastermindService.BASE_URL + "/lobbies/{id}",
+            path = MastermindService.BASE_URL + "/lobbies/{id}/{name}/{role}",
             methods = {HttpMethod.PUT},
             tags = {"lobbies"},
             description = "Add the player corresponding to the nickname passed, in the lobby corresponding to the id passed.",
@@ -157,18 +157,18 @@ public interface LobbyController extends Controller {
                             type = Integer.class,
                             description = "The lobby id",
                             required = true
+                    ),
+                    @OpenApiParam(
+                            name = "name",
+                            description = "The nickname of the player to add",
+                            required = true
+                    ),
+                    @OpenApiParam(
+                            name = "role",
+                            description = "The role of the player",
+                            required = true
                     )
             },
-            requestBody = @OpenApiRequestBody(
-                    description = "The player to add",
-                    required = true,
-                    content = {
-                            @OpenApiContent(
-                                    from = Player.class,
-                                    mimeType = ContentType.JSON
-                            )
-                    }
-            ),
             responses = {
                     @OpenApiResponse(
                             status = "200",

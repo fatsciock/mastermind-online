@@ -102,6 +102,10 @@ public abstract class AbstractHttpClientStub {
         return HttpRequest.BodyPublishers.ofString(serialize(object), StandardCharsets.UTF_8);
     }
 
+    protected HttpRequest.BodyPublisher body() {
+        return HttpRequest.BodyPublishers.noBody();
+    }
+
     protected Function<HttpResponse<String>, CompletableFuture<String>> checkResponse() {
         return response -> {
             if (response.statusCode() == 200) {

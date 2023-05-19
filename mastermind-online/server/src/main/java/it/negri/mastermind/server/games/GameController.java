@@ -163,7 +163,13 @@ public interface GameController extends Controller {
             responses = {
                     @OpenApiResponse(
                             status = "200",
-                            description = "The provided id corresponds to a game and the name to a player in the game, the code is set and returned"
+                            description = "The provided id corresponds to a game and the name to a player in the game, the code is set and returned",
+                            content = {
+                                    @OpenApiContent(
+                                            from = String.class,
+                                            mimeType = ContentType.JSON
+                                    )
+                            }
                     ),
                     @OpenApiResponse(
                             status = "400",
