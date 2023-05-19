@@ -4,7 +4,6 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpResponseException;
 import io.javalin.openapi.*;
 import it.negri.mastermind.common.model.Lobby;
-import it.negri.mastermind.common.model.Player;
 import it.negri.mastermind.server.Controller;
 import it.negri.mastermind.server.MastermindService;
 import it.negri.mastermind.server.lobbies.impl.LobbyControllerImpl;
@@ -73,7 +72,7 @@ public interface LobbyController extends Controller {
                     )
             }
     )
-    void DeleteLobby(Context context) throws HttpResponseException;
+    void DELETELobby(Context context) throws HttpResponseException;
 
     @OpenApi(
             operationId = "LobbyApi::getLobby",
