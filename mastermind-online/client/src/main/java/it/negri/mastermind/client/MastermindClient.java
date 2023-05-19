@@ -27,6 +27,10 @@ public class MastermindClient extends AbstractHttpClientStub implements Mastermi
         this(URI.create("http://" + host + ":" + port));
     }
 
+
+    // Player
+
+
     @Override
     public Player createPlayer(String nick) throws ConflictException, IllegalArgumentException, ServerUnavailableException {
         try {
@@ -37,7 +41,7 @@ public class MastermindClient extends AbstractHttpClientStub implements Mastermi
             } else if (e.getCause() instanceof ConnectException) {
                 throw getCauseAs(e, ServerUnavailableException.class);
             } else {
-                throw getCauseAs(e, IllegalArgumentException.class);
+                throw new IllegalArgumentException(e);
             }
         }
     }
@@ -61,7 +65,7 @@ public class MastermindClient extends AbstractHttpClientStub implements Mastermi
             if(e.getCause() instanceof MissingException) {
                 throw getCauseAs(e, MissingException.class);
             } else {
-                throw getCauseAs(e, ServerUnavailableException.class);
+                throw new ServerUnavailableException(e);
             }
         }
     }
@@ -92,6 +96,7 @@ public class MastermindClient extends AbstractHttpClientStub implements Mastermi
     private CompletableFuture<Player> getPlayerAsync(String nick) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(resourceUri("/players/" + nick))
+                .header("Accept", "application/json")
                 .GET()
                 .build();
         return sendRequestToClient(request)
