@@ -360,7 +360,7 @@ public class MastermindClient extends AbstractHttpClientStub implements Mastermi
 
     private CompletableFuture<Game> guessCodeAsync(int gameId, String guess, String nick) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(resourceUri("/games/attempt" + gameId + "/" + nick))
+                .uri(resourceUri("/games/attempt/" + gameId + "/" + nick))
                 .header("Accept", "application/json")
                 .PUT(body(guess))
                 .build();
