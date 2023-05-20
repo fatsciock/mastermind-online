@@ -22,6 +22,13 @@ dependencies {
     implementation("io.javalin.community.openapi:javalin-swagger-plugin:5.1.3") // for Swagger UI
 }
 
+tasks.getByName<JavaExec>("run") {
+    standardInput = System.`in`
+    if (project.hasProperty("port")) {
+        args(project.property("port"))
+    }
+}
+
 application {
-    //mainClass.set("")
+    mainClass.set("it.negri.negri.mastermind.server.MastermindService")
 }
