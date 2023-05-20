@@ -1,6 +1,6 @@
 package it.negri.mastermind.players;
 
-import it.negri.mastermind.client.MastermindClient;
+import it.negri.mastermind.client.RemoteMastermind;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.exceptions.ServerUnavailableException;
@@ -18,7 +18,7 @@ public class TestRemotePlayers extends AbstractTestPlayers {
     protected void setUp() {
         service = new MastermindService(port);
         service.start();
-        mastermind = new MastermindClient("localhost", port);
+        mastermind = new RemoteMastermind("localhost", port);
     }
 
     @Order(1)
