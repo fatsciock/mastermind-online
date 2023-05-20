@@ -3,10 +3,8 @@ package it.negri.mastermind.client;
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
 import it.negri.mastermind.common.exceptions.ServerUnavailableException;
-import it.negri.mastermind.common.model.Game;
-import it.negri.mastermind.common.model.Lobby;
-import it.negri.mastermind.common.model.Player;
-import it.negri.mastermind.common.model.Role;
+import it.negri.mastermind.common.model.*;
+import it.negri.mastermind.common.utils.Utils;
 
 import java.util.*;
 
@@ -210,11 +208,7 @@ public class MastermindClient {
                 }
             }
 
-            boolean isGameFinished = false;
-
-            while (!isGameFinished) {
-                System.out.println("GIOCO");
-            }
+            playGame(client, player, lobby, game, in);
 
             switch (option) {
                 case "1": {
@@ -258,6 +252,128 @@ public class MastermindClient {
 
         System.out.println("Uscita dal gioco...");
         System.exit(0);
+    }
+
+    private static void playGame(RemoteMastermind client, Player player, Lobby lobby, Game game, Scanner in) {
+
+        System.out.println("---------INIZIO GAME---------");
+        boolean isGameEnded = false;
+        switch (player.getRole()) {
+            case DECODER -> {
+                System.out.println("Sei il decodificatore");
+                System.out.println("Attendi che il codificatore scelga un codice...");
+                try {
+                    while (true) {
+                        game = client.getGame(game.getId());
+                        if (game.getCode() == null || game.getCode().isBlank()) {
+                            Thread.sleep(500);
+                            continue;
+                        }
+                        break;
+                    }
+                } catch (MissingException e) {
+                    throw new RuntimeException(e);
+                } catch (ServerUnavailableException e) {
+                    printServerUnavailableException();
+                    //Bo
+                } catch (InterruptedException e) {
+                    printInterruptedExceptionAndExit();
+                }
+                System.out.println("Il codificatore ha scelto il codice");
+                String guess;
+                int remainingAttempts;
+                int actualAttempt = 0;
+
+                while (true) {
+                    remainingAttempts = game.getRemainingAttempts();
+                    System.out.println("Tentativi rimasti: " + remainingAttempts);
+                    System.out.println("Inserisci il tuo tentativo (ricorda, deve essere composto da " + Utils.getCodeLength() + " cifre DECIMALI (0-9): ");
+                    guess = in.nextLine();
+                    try {
+                        game = client.guessCode(game.getId(), guess, player.getNickname());
+
+                        if (game.getWinner() != null) {
+                            if (game.getWinner().getNickname().equals(player.getNickname())) {
+                                System.out.println("COMPLIMENTI! HAI VINTO!");
+                            } else {
+                                System.out.println("Mi dispiace, hai perso :(");
+                            }
+                            isGameEnded = true;
+                            break;
+                        }
+                        System.out.println("Hai provato il codice " + guess);
+                        var hint = game.getHintPerAttempt().get(actualAttempt);
+                        System.out.println("Cifre giuste al posto giusto: " + hint.get(HintLabel.RIGHT_NUMBER_IN_RIGHT_PLACE));
+                        System.out.println("Cifre giuste al posto sbagliato: " + hint.get(HintLabel.RIGHT_NUMBER_IN_WRONG_PLACE));
+                        System.out.println("--------------------------------------------");
+                        actualAttempt++;
+
+                    } catch (MissingException | IllegalArgumentException e) {
+                        System.err.println(e.getMessage());
+                    } catch (ServerUnavailableException e) {
+                        printServerUnavailableException();
+                    }
+                }
+
+                //Gestire fine partita
+
+            }
+            case ENCODER -> {
+                System.out.println("Sei il codificatore");
+                String codeToGuess;
+                int remainingAttempts = game.getRemainingAttempts();
+
+                while (true) {
+                    System.out.println("Inserisci il codice da far indovinare (ricorda, deve essere composto da " + Utils.getCodeLength() + " cifre DECIMALI (0-9): ");
+                    codeToGuess = in.nextLine();
+                    try {
+                        System.out.println("Codice " + client.setCode(game.getId(), codeToGuess, player.getNickname()) + " impostato");
+                        break;
+                    } catch (MissingException | IllegalArgumentException e) {
+                        System.err.println(e.getMessage());
+                    } catch (ServerUnavailableException e) {
+                        printServerUnavailableException();
+                    }
+                }
+
+                try {
+                    while (true) {
+                        game = client.getGame(game.getId());
+                        if (game.getRemainingAttempts() == remainingAttempts) {
+                            Thread.sleep(500);
+                            continue;
+                        }
+                        if (game.getWinner() != null) {
+                            if (game.getWinner().getNickname().equals(player.getNickname())) {
+                                System.out.println("COMPLIMENTI! HAI VINTO!");
+                            } else {
+                                System.out.println("Mi dispiace, hai perso :(");
+                            }
+                            isGameEnded = true;
+                            break;
+                        }
+                        int newAttempt = remainingAttempts - game.getRemainingAttempts();
+                        remainingAttempts = game.getRemainingAttempts();
+                        var decoderAttempts = game.getAttempts();
+
+                        for (int i = 0; i < decoderAttempts.size(); i++) {
+                            if (i >= decoderAttempts.size() - newAttempt) {
+                                System.out.println("Il decodificatore ha provato il codice " + decoderAttempts.get(i));
+                            }
+                        }
+                    }
+
+                    //Gestire fine partita
+
+                } catch (MissingException e) {
+                    throw new RuntimeException(e);
+                } catch (ServerUnavailableException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     private static void printServerUnavailableException() {
