@@ -30,5 +30,5 @@ tasks.getByName<JavaExec>("run") {
 }
 
 application {
-    mainClass.set("it.negri.negri.mastermind.server.MastermindService")
+    mainClass.set("it.negri.mastermind.server.MastermindService")
 }
