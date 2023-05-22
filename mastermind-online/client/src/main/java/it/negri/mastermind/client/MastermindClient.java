@@ -49,6 +49,7 @@ public class MastermindClient {
             Lobby lobby = null;
             Game game = null;
             player.setAsInactive();
+            System.out.flush();
             String option = in.nextLine();
 
             switch (option) {
@@ -211,7 +212,7 @@ public class MastermindClient {
             playGame(client, player, lobby, game, in);
 
             switch (option) {
-                case "1": {
+                case "1" -> {
                     while (true) {
                         try {
                             lobby = client.getLobby(lobby.getId());
@@ -238,7 +239,7 @@ public class MastermindClient {
                         printServerUnavailableException();
                     }
                 }
-                case "2": {
+                case "2" -> {
                     try {
                         client.deletePlayerFromLobby(player.getNickname(), lobby.getId());
                     } catch (MissingException e) {
