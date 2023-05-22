@@ -193,12 +193,12 @@ public class MastermindClient {
                         printMissingLobbyException(lobby);
                         continue;
                     } catch (ConflictException e) {
-                        System.err.println("Nella lobby " + lobby.getId() + " e' gia' in corso un game");
+                        printGameAlreadyStartedException(lobby);
                         continue;
                     } catch (IllegalArgumentException e) {
-                        System.err.println("La lobby " + lobby.getId() + " non e' piena, il game non puo' iniziare");
+                        printNotFullLobbyException(lobby);
                         continue;
-                    }  catch (ServerUnavailableException e){
+                    }  catch (ServerUnavailableException e) {
                         printServerUnavailableException();
                         continue;
                     }
@@ -239,42 +239,12 @@ public class MastermindClient {
 
             playGame(client, player, lobby, game, in);
 
-            switch (option) {
-                case "1" -> {
-                    while (true) {
-                        try {
-                            lobby = client.getLobby(lobby.getId());
-                            if (lobby.getPlayerA() == null || lobby.getPlayerB() == null) {
-                                break;
-                            }
-                            Thread.sleep(500);
-                        } catch (MissingException e) {
-                            printMissingLobbyException(lobby);
-                            break;
-                        } catch (ServerUnavailableException e) {
-                            printServerUnavailableException();
-                            break;
-                        } catch (InterruptedException e) {
-                            printInterruptedExceptionAndExit();
-                        }
-                    }
-                    try {
-                        client.deleteLobby(lobby.getId());
-                    } catch (MissingException e) {
-                        printMissingLobbyException(lobby);
-                    } catch (ServerUnavailableException e) {
-                        printServerUnavailableException();
-                    }
-                }
-                case "2" -> {
-                    try {
-                        client.deletePlayerFromLobby(player.getNickname(), lobby.getId());
-                    } catch (MissingException e) {
-                        System.err.println(e.getMessage());
-                    } catch (ServerUnavailableException e) {
-                        printServerUnavailableException();
-                    }
-                }
+            try {
+                client.deletePlayerFromLobby(player.getNickname(), lobby.getId());
+            } catch (MissingException e) {
+                System.err.println(e.getMessage());
+            } catch (ServerUnavailableException e) {
+                printServerUnavailableException();
             }
         }
 
@@ -283,7 +253,6 @@ public class MastermindClient {
     }
 
     private static void playGame(RemoteMastermind client, Player player, Lobby lobby, Game game, Scanner in) {
-
         System.out.println("---------INIZIO GAME---------");
         boolean isGameEnded = false;
         switch (player.getRole()) {
@@ -471,6 +440,10 @@ public class MastermindClient {
         System.exit(1);
     }
 
+    private static void printGameAlreadyStartedException(Lobby lobby) {
+        System.err.println("Nella lobby " + lobby.getId() + " e' gia' in corso un game");
+    }
+
     private static void printNotInGameException(Game game) {
         System.err.println("Non fai parte del game " + game.getId());
     }
@@ -493,6 +466,10 @@ public class MastermindClient {
 
     private static void printFullLobbyException(Lobby lobby) {
         System.err.println("La lobby " + lobby.getId() + " e' piena, selezionane un'altra");
+    }
+
+    private static void printNotFullLobbyException(Lobby lobby) {
+        System.err.println("La lobby " + lobby.getId() + " non e' piena, il game non puo' iniziare");
     }
 
     private static void printSelectRoleException() {
