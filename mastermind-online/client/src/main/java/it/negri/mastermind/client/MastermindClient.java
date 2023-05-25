@@ -2,6 +2,7 @@ package it.negri.mastermind.client;
 
 import it.negri.mastermind.common.exceptions.ConflictException;
 import it.negri.mastermind.common.exceptions.MissingException;
+import it.negri.mastermind.common.exceptions.PlayerTimeoutException;
 import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.*;
 import it.negri.mastermind.common.utils.Utils;
@@ -9,6 +10,8 @@ import it.negri.mastermind.common.utils.Utils;
 import java.util.*;
 
 public class MastermindClient {
+
+    private static final int TIMEOUT = 90; //45 secondi, il controllo viene fatto ogni 0.5s per questo il valore è 90
 
     public static void main(String[] args) {
         String host = args[0];
@@ -133,10 +136,10 @@ public class MastermindClient {
                             String lobbyOption = in.nextLine();
 
                             switch (lobbyOption) {
-                                case "R" -> {
+                                case "R", "r" -> {
                                     continue;
                                 }
-                                case "B" -> {
+                                case "B", "b" -> {
                                     exitFromLobbiesList = true;
                                     continue;
                                 }
@@ -254,16 +257,20 @@ public class MastermindClient {
 
     private static void playGame(RemoteMastermind client, Player player, Lobby lobby, Game game, Scanner in) {
         System.out.println("---------INIZIO GAME---------");
-        boolean isGameEnded = false;
         switch (player.getRole()) {
             case DECODER -> {
                 System.out.println("Sei il decodificatore");
                 System.out.println("Attendi che il codificatore scelga un codice...");
+                int countdown = 0;
                 try {
                     while (true) {
+                        if(countdown >= TIMEOUT) {
+                            throw new PlayerTimeoutException();
+                        }
                         game = client.getGame(game.getId());
                         if (game.getCode() == null || game.getCode().isBlank()) {
                             Thread.sleep(500);
+                            countdown++;
                             continue;
                         }
                         break;
@@ -272,6 +279,9 @@ public class MastermindClient {
                     printMissingGameExpection(game);
                 } catch (ServerUnavailableException e) {
                     printServerUnavailableException();
+                    break;
+                } catch (PlayerTimeoutException e) {
+                    printPlayerTimeoutException();
                     break;
                 } catch (InterruptedException e) {
                     printInterruptedExceptionAndExit();
@@ -295,7 +305,6 @@ public class MastermindClient {
                             } else {
                                 System.out.println("Mi dispiace, hai perso :(");
                             }
-                            isGameEnded = true;
                             break;
                         }
                         System.out.println("Hai provato il codice " + guess);
@@ -354,11 +363,16 @@ public class MastermindClient {
                     }
                 }
 
+                int countdown = 0;
                 try {
                     while (true) {
+                        if(countdown >= TIMEOUT) {
+                            throw new PlayerTimeoutException();
+                        }
                         game = client.getGame(game.getId());
                         if (game.getRemainingAttempts() == remainingAttempts) {
                             Thread.sleep(500);
+                            countdown++;
                             continue;
                         }
                         if (game.getWinner() != null) {
@@ -367,7 +381,6 @@ public class MastermindClient {
                             } else {
                                 System.out.println("Mi dispiace, hai perso :(");
                             }
-                            isGameEnded = true;
                             break;
                         }
                         int newAttempt = remainingAttempts - game.getRemainingAttempts();
@@ -384,6 +397,8 @@ public class MastermindClient {
                     printMissingGameExpection(game);
                 } catch (ServerUnavailableException e) {
                     printServerUnavailableException();
+                } catch (PlayerTimeoutException e) {
+                    printPlayerTimeoutException();
                 } catch (InterruptedException e) {
                     printInterruptedExceptionAndExit();
                 }
@@ -438,6 +453,10 @@ public class MastermindClient {
     private static void printInterruptedExceptionAndExit() {
         System.err.println("Errore interno al client, chiusura in corso...");
         System.exit(1);
+    }
+
+    private static void printPlayerTimeoutException() {
+        System.err.println("Tempo scaduto per l'avversario, ritorno alla lobby in corso...");
     }
 
     private static void printGameAlreadyStartedException(Lobby lobby) {
