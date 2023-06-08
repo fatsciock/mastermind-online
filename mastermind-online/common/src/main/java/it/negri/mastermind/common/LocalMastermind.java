@@ -111,6 +111,9 @@ public class LocalMastermind implements Mastermind{
 
         if(lobby.isEmpty()) {
             deleteLobby(lobbyId);
+            if(gamesById.containsKey(lobbyId)) {
+                deleteGame(lobbyId);
+            }
         }
     }
 

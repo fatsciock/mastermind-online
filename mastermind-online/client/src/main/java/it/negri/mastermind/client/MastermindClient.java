@@ -77,14 +77,14 @@ public class MastermindClient {
                         if (e.getMessage().contains("user")) {
                             printMissingPlayerException(player);
                         } else {
-                            printMissingLobbyException(lobby);
+                            printMissingLobbyException();
                         }
                         continue;
                     } catch (IllegalArgumentException e) {
                         if (e.getMessage().contains("MUST")) {
                             printSelectRoleException();
                         } else if (e.getMessage().contains("Lobby")) {
-                            printFullLobbyException(lobby);
+                            printFullLobbyException();
                         } else {
                             printRoleChosenException(player);
                         }
@@ -122,6 +122,15 @@ public class MastermindClient {
                             selectedLobbyId = -1;
                             System.out.println("\n--------------LOBBIES--------------");
                             for (Lobby l : lobbies) {
+                                try {
+                                    client.getGame(l.getId());
+                                    continue;
+                                } catch (ServerUnavailableException e) {
+                                    printServerUnavailableException();
+                                    continue;
+                                } catch (MissingException ignored) {
+
+                                }
                                 if (!l.isFull()) {
                                     System.out.println("Lobby " + l.getId() + " - Ruolo mancante: " +
                                             (l.getPlayerA() != null ? getOppositeRole(l.getPlayerA().getRole()) : getOppositeRole(l.getPlayerB().getRole())) +
@@ -170,13 +179,13 @@ public class MastermindClient {
                                 if (e.getMessage().contains("user")) {
                                     printMissingPlayerException(player);
                                 } else {
-                                    printMissingLobbyException(lobby);
+                                    printMissingLobbyException();
                                 }
                             } catch (IllegalArgumentException e) {
                                 if (e.getMessage().contains("MUST")) {
                                     printSelectRoleException();
                                 } else if (e.getMessage().contains("Lobby")) {
-                                    printFullLobbyException(lobby);
+                                    printFullLobbyException();
                                 } else {
                                     printRoleChosenException(player);
                                 }
@@ -193,7 +202,7 @@ public class MastermindClient {
                     try {
                         client.startGame(lobby.getId());
                     } catch (MissingException e) {
-                        printMissingLobbyException(lobby);
+                        printMissingLobbyException();
                         continue;
                     } catch (ConflictException e) {
                         printGameAlreadyStartedException(lobby);
@@ -298,13 +307,17 @@ public class MastermindClient {
                     guess = in.nextLine();
                     try {
                         game = client.guessCode(game.getId(), guess, player.getNickname());
-
+                        lobby = client.getLobby(lobby.getId());
                         if (game.getWinner() != null) {
                             if (game.getWinner().getNickname().equals(player.getNickname())) {
                                 System.out.println("COMPLIMENTI! HAI VINTO!");
                             } else {
-                                System.out.println("Mi dispiace, hai perso :(");
+                                System.out.println("Mi dispiace, i tentativi sono finiti, hai perso :(");
                             }
+                            break;
+                        }
+                        if (iAmAlone(lobby, player)) {
+                            System.err.println("Il codificatore si è disconnesso, ritorno al menu' in corso...");
                             break;
                         }
                         System.out.println("Hai provato il codice " + guess);
@@ -370,18 +383,23 @@ public class MastermindClient {
                             throw new PlayerTimeoutException();
                         }
                         game = client.getGame(game.getId());
-                        if (game.getRemainingAttempts() == remainingAttempts) {
-                            Thread.sleep(500);
-                            countdown++;
-                            continue;
-                        }
+                        lobby = client.getLobby(lobby.getId());
                         if (game.getWinner() != null) {
                             if (game.getWinner().getNickname().equals(player.getNickname())) {
                                 System.out.println("COMPLIMENTI! HAI VINTO!");
                             } else {
-                                System.out.println("Mi dispiace, hai perso :(");
+                                System.out.println("Mi dispiace, il decodificatore ha indovinato il codice, hai perso :(");
                             }
                             break;
+                        }
+                        if(iAmAlone(lobby, player)) {
+                            System.err.println("Il decodificatore si è disconnesso, ritorno al menu' in corso...");
+                            break;
+                        }
+                        if (game.getRemainingAttempts() == remainingAttempts) {
+                            Thread.sleep(500);
+                            countdown++;
+                            continue;
                         }
                         int newAttempt = remainingAttempts - game.getRemainingAttempts();
                         remainingAttempts = game.getRemainingAttempts();
@@ -447,6 +465,10 @@ public class MastermindClient {
         return result;
     }
 
+    private static boolean iAmAlone(Lobby lobby, Player player) {
+        return (lobby.getPlayerA() == null && lobby.getPlayerB().getNickname().equals(player.getNickname())) ||
+                (lobby.getPlayerA().getNickname().equals(player.getNickname()) && lobby.getPlayerB() == null);
+    }
 
     // Print eccezioni
 
@@ -479,12 +501,12 @@ public class MastermindClient {
         System.err.println("Non esiste un giocatore con nick " + player.getNickname());
     }
 
-    private static void printMissingLobbyException(Lobby lobby) {
-        System.err.println("Non esiste una lobby con id " + lobby.getId());
+    private static void printMissingLobbyException() {
+        System.err.println("La lobby selezionata non esiste piu'");
     }
 
-    private static void printFullLobbyException(Lobby lobby) {
-        System.err.println("La lobby " + lobby.getId() + " e' piena, selezionane un'altra");
+    private static void printFullLobbyException() {
+        System.err.println("La lobby selezionata e' piena, selezionane un'altra");
     }
 
     private static void printNotFullLobbyException(Lobby lobby) {
