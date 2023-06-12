@@ -5,6 +5,7 @@ import it.negri.mastermind.common.LocalMastermind;
 import it.negri.mastermind.common.Mastermind;
 import it.negri.mastermind.common.utils.GsonUtils;
 import it.negri.mastermind.server.games.GameController;
+import it.negri.mastermind.server.heartbeat.HeartbeatController;
 import it.negri.mastermind.server.lobbies.LobbyController;
 import it.negri.mastermind.server.players.PlayerController;
 import it.negri.mastermind.server.utils.Filters;
@@ -34,6 +35,7 @@ public class MastermindService {
         GameController.of(path("/games")).registerRoutes(server);
         LobbyController.of(path("/lobbies")).registerRoutes(server);
         PlayerController.of(path("/players")).registerRoutes(server);
+        HeartbeatController.of(path("/heartbeat")).registerRoutes(server);
     }
 
     public void start() {

@@ -37,4 +37,6 @@ public interface Mastermind {
 
     Game guessCode(final int gameId, final String guess, final String nick) throws MissingException, IllegalArgumentException, ServerUnavailableException;
 
+    void heartbeat(final String nick) throws MissingException, ServerUnavailableException;
+
 }

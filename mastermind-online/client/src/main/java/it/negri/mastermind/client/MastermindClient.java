@@ -7,19 +7,25 @@ import it.negri.mastermind.common.exceptions.ServerUnavailableException;
 import it.negri.mastermind.common.model.*;
 import it.negri.mastermind.common.utils.Utils;
 
+import java.awt.*;
 import java.util.*;
 
 public class MastermindClient {
 
     private static final int TIMEOUT = 90; //45 secondi, il controllo viene fatto ogni 0.5s per questo il valore è 90
 
+    private static RemoteMastermind client;
+    private static Player player = null;
+    private static Lobby lobby = null;
+    private static Game game = null;
+    private static Scanner in;
+
+
     public static void main(String[] args) {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
-        RemoteMastermind client = new RemoteMastermind(host, port);
-        Scanner in = new Scanner(System.in);
-
-        Player player = null;
+        client = new RemoteMastermind(host, port);
+        in = new Scanner(System.in);
 
         while(true) {
             System.out.println("Benvenuto! Inserisci un nickname: ");
@@ -40,6 +46,8 @@ public class MastermindClient {
             }
         }
 
+        new HeartbeatClientThread(player.getNickname(), client).start();
+
         boolean exit = false;
 
         while(!exit) {
@@ -49,11 +57,16 @@ public class MastermindClient {
             System.out.println("2) Visualizza lobby disponibili");
             System.out.println("3) Esci");
 
-            Lobby lobby = null;
-            Game game = null;
+            lobby = null;
+            game = null;
             player.setAsInactive();
             System.out.flush();
-            String option = in.nextLine();
+            String option;
+            try {
+                option = in.nextLine();
+            } catch (Exception e) {
+                option = "3";
+            }
 
             switch (option) {
                 case "1" -> {
@@ -249,7 +262,7 @@ public class MastermindClient {
                 }
             }
 
-            playGame(client, player, lobby, game, in);
+            playGame();
 
             try {
                 client.deletePlayerFromLobby(player.getNickname(), lobby.getId());
@@ -264,7 +277,7 @@ public class MastermindClient {
         System.exit(0);
     }
 
-    private static void playGame(RemoteMastermind client, Player player, Lobby lobby, Game game, Scanner in) {
+    private static void playGame() {
         System.out.println("---------INIZIO GAME---------");
         switch (player.getRole()) {
             case DECODER -> {
@@ -494,7 +507,7 @@ public class MastermindClient {
     }
 
     private static void printServerUnavailableException() {
-        System.err.println("Serve attualmente non raggiungibile");
+        System.err.println("Server attualmente non raggiungibile");
     }
 
     private static void printMissingPlayerException(Player player) {

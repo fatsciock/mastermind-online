@@ -368,4 +368,28 @@ public class RemoteMastermind extends AbstractHttpClientStub implements Mastermi
                 .thenComposeAsync(checkResponse())
                 .thenComposeAsync(deserializeOne(Game.class));
     }
+
+    @Override
+    public void heartbeat(String nick) throws MissingException, ServerUnavailableException {
+        try {
+            heartbeatAsync(nick).join();
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof MissingException) {
+                throw getCauseAs(e, MissingException.class);
+            } else {
+                throw getCauseAs(e, ServerUnavailableException.class);
+            }
+        }
+    }
+
+    private CompletableFuture<?> heartbeatAsync(String nick) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(resourceUri("/heartbeat"))
+                .header("Accept", "application/json")
+                .POST(body(nick))
+                .build();
+        return sendRequestToClient(request)
+                .thenComposeAsync(checkResponse())
+                .thenComposeAsync(deserializeOne(Void.class));
+    }
 }

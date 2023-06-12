@@ -7,11 +7,12 @@ import it.negri.mastermind.common.utils.Utils;
 
 import java.util.*;
 
-public class LocalMastermind implements Mastermind{
+public class LocalMastermind implements Mastermind {
 
     private final Map<String, Player> usersByNickname = new HashMap<>();
     private final Map<Integer, Lobby> lobbiesById = new HashMap<>();
     private final Map<Integer, Game> gamesById = new HashMap<>();
+    private final HeartbeatManager heartbeatManager = new HeartbeatManager(this);
 
     @Override
     public Player createPlayer(final String nick) throws ConflictException, IllegalArgumentException {
@@ -23,6 +24,7 @@ public class LocalMastermind implements Mastermind{
             throw new ConflictException("Nickname " + newPlayer.getNickname() + " already exists");
         }
         usersByNickname.put(newPlayer.getNickname(), newPlayer);
+        heartbeatManager.registerNewPlayer(newPlayer.getNickname());
         return newPlayer;
     }
 
@@ -30,6 +32,7 @@ public class LocalMastermind implements Mastermind{
     public void deletePlayer(final String nick) throws MissingException {
         var playerToDelete = getPlayer(nick);
         usersByNickname.remove(playerToDelete.getNickname());
+        heartbeatManager.deletePlayer(playerToDelete.getNickname());
     }
 
     @Override
@@ -92,6 +95,7 @@ public class LocalMastermind implements Mastermind{
         } else if (lobby.getPlayerB() == null){
             lobby.setPlayerB(player);
         }
+        heartbeatManager.registerPlayerToLobby(nick, lobbyId);
 
         return lobby;
     }
@@ -108,6 +112,7 @@ public class LocalMastermind implements Mastermind{
         } else {
             throw new MissingException("There is no user " + nick + " in the lobby " + lobbyId);
         }
+        heartbeatManager.deletePlayerFromLobby(nick, lobbyId);
 
         if(lobby.isEmpty()) {
             deleteLobby(lobbyId);
@@ -170,6 +175,13 @@ public class LocalMastermind implements Mastermind{
         checkCode(guess);
 
         return game.tryToGuessCode(guess);
+    }
+
+    @Override
+    public void heartbeat(String nick) throws MissingException {
+        var player = getPlayer(nick);
+
+        heartbeatManager.heartbeat(player.getNickname());
     }
 
     private void checkPlayer(Game game, Player player) throws IllegalArgumentException {
